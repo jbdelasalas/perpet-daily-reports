@@ -1,0 +1,37 @@
+name: Perpet Pilipinas Daily Reports
+
+on:
+  schedule:
+    # Runs at 8:00 AM Asia/Manila time (UTC+8) = 12:00 AM UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install nodemailer crypto
+
+      - name: Generate and send daily report
+        env:
+          NETSUITE_ACCOUNT_ID: ${{ secrets.NETSUITE_ACCOUNT_ID }}
+          NETSUITE_CONSUMER_KEY: ${{ secrets.NETSUITE_CONSUMER_KEY }}
+          NETSUITE_CONSUMER_SECRET: ${{ secrets.NETSUITE_CONSUMER_SECRET }}
+          NETSUITE_SUBSIDIARY_ID: ${{ secrets.NETSUITE_SUBSIDIARY_ID }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+        run: node scripts/perpet-daily-reports.js
